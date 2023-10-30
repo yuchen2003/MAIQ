@@ -1,0 +1,54 @@
+# --- MAGAIL specific parameters ---
+
+action_selector: "multinomial"
+mask_before_softmax: True
+
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 50000
+runner: "parallel"
+
+buffer_size: 8
+batch_size_run: 8
+batch_size: 8
+
+# update the target network every {} training steps
+target_update_interval_or_tau: 200
+disc_type: centralized
+use_label_smoothing: True
+label_smooth_rate: 0.1
+
+lr: 0.0005
+dis_lr: 0.001
+drop_rate: 0.5
+use_noise: True # trick: add noise
+noise_std: 0.15
+
+hidden_dim: 64 # Size of hidden state for default rnn agentth.
+activation: LeakyReLU
+
+obs_agent_id: True
+obs_last_action: False
+obs_individual_obs: False
+
+agent_output_type: "pi_logits"
+learner: "ppo_learner"
+entropy_coef: 0.01
+use_rnn: False
+standardise_returns: False
+standardise_rewards: False
+q_nstep: 5 # 1 corresponds to normal r + gammaV
+critic_type: "cv_critic"
+epochs: 4
+eps_clip: 0.2
+bc_iters: 500
+d_iters: 3
+name: "magail"
+discriminator: "fc"
+results_save_dir: './results/'
+load_dataset_dir: 'dataset/3m_qmix_10.pkl'
+expert_data_path: ""
+t_max: 2005000
+is_bc: False
+use_wandb: True 
+add_value_last_step: True

@@ -1,0 +1,52 @@
+# --- QMIX specific parameters ---
+
+# action_selector: "soft_policies"
+action_selector: "multinomial"
+mask_before_softmax: True
+
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 50000
+evaluation_epsilon: 0.0
+
+runner: "episode"
+
+# update the target network every {} episodes
+target_update_interval_or_tau: 0.005
+
+obs_agent_id: True
+obs_last_action: False # 连续动作不能采用one hot id action
+obs_individual_obs: False
+
+agent: "isac"
+# use the madddpg_learner to train
+mac: "isac_mac"
+gama: 0.99
+tau: 0.005
+
+reg: 0.001
+batch_size: 4
+lr: 0.0005
+use_rnn: True
+
+standardise_returns: False
+standardise_rewards: True
+
+learner: "sac_learner"
+agent_output_type: "None"
+hidden_dim: 128
+v_net: "isac_v_net"
+q_net: "isac_q_net"
+sac_alpha: 0.001
+grad_norm_clip: 0.5
+task_type: "continuous"
+episode_log_interval: 100
+episode_cnt: 50
+buffer_size: 2000
+#checkpoint_path: 'results/sc2/3m/qmix/qmix_2022-10-11_08-47-32/models'
+checkpoint_path: 'results/gymma/independent_sac/independent_sac_2023-04-25_17-42-51/models'
+load_dataset_dir: 'dataset'
+save_dataset_dir: 'dataset'
+use_wandb: False
+
+name: "simple_continuous"

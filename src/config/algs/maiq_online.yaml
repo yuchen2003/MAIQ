@@ -1,0 +1,36 @@
+# --- QMIX specific parameters ---
+
+# use epsilon greedy action selector
+action_selector: "epsilon_greedy"
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 50000
+
+runner: "episode"
+
+buffer_size: 400
+batch_size: 8
+
+# update the target network every {} episodes
+target_update_interval: 200
+
+# use the Q_Learner to train
+agent_output_type: "q"
+learner: "maiq_learner_online"
+double_q: True
+mixer: "linear_abs_mixer"
+# mixer: "vdn"
+mixing_embed_dim: 32
+hypernet_layers: 2
+hypernet_embed: 64
+
+name: "maiq_online"
+use_wandb: True 
+results_save_dir: './results/'
+load_dataset_dir: 'dataset/5m_vs_6m_vdn_10.pkl'
+divergence_type: "TotalVariation" # TotalVariation, PearsonChiSquared, Hellinger, ForwardKL, ReverseKL, JensenShannon
+remark: "TotalVariation"
+alpha: 0.5
+save_video: False # make it False when use smac
+save_video_interval: 100000
+is_bc: False 

@@ -1,0 +1,38 @@
+# --- QMIX specific parameters ---
+
+# use epsilon greedy action selector
+action_selector: "epsilon_greedy"
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 50000
+
+runner: "episode"
+
+
+# update the target network every {} episodes
+target_update_interval: 200
+
+# use the Q_Learner to train
+agent_output_type: "q"
+learner: "q_learner"
+double_q: True
+mixer: "qmix"
+mixing_embed_dim: 32
+hypernet_layers: 2
+hypernet_embed: 64
+
+name: "qmix"
+episode_log_interval: 100
+
+episode_cnt: 10
+buffer_size: 2000
+
+#checkpoint_path: 'results/sc2/3m/qmix/qmix_2022-10-11_08-47-32/models'
+# checkpoint_path: 'results/sc2/3m/vdn/vdn_2022-10-14_18-55-44/models'
+# checkpoint_path: '/home/wuzy/maiq/results/sc2/3m/vdn/vdn_2022-10-14_18-55-44/models'
+# checkpoint_path: '/home/wuzy/maiq/results/sc2/3m/vdn/vdn_2022-10-16_18-15-20/models'
+# checkpoint_path: '/home/wuzy/MAIQ/results/gymma/independent_sac/independent_sac_2023-04-25_17-42-51/models'
+checkpoint_path: '/home/leiyuan/xyc/MAIQ-p/results/models/qmix__2023-10-28_17-16-33'
+load_dataset_dir: 'dataset'
+save_dataset_dir: 'dataset'
+use_wandb: False
