@@ -36,10 +36,10 @@ class LinearMixer(nn.Module):
             x = x.sum(dim=2, keepdim=True)
         else:
             x = agent_qs * w.unsqueeze(-1)
-            if self.abs != 'softmax':
-                x = x + b.unsqueeze(-1)
             x = self.getV(x)
             x = x.sum(dim=2, keepdim=True)
+            if self.abs != 'softmax':
+                x = x + b
         return x
     
 

@@ -27,7 +27,6 @@ python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3s_vs_
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 save_model=True &
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 &
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 &
-wait
 
 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_9m t_max=2060000 save_model=True &
 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_9m t_max=2060000 &
@@ -35,7 +34,6 @@ python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 save_model=True &
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 &
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 &
-wait
 
 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 save_model=True &
 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 &
@@ -44,3 +42,5 @@ CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with e
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2c_vs_64zg t_max=2060000 &
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2c_vs_64zg t_max=2060000 &
 wait
+
+# python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=25 env_args.key="lbforaging:Foraging-8x8-2p-1f-coop-v2"

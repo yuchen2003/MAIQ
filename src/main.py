@@ -76,6 +76,8 @@ def _get_config(params, arg_name, subfolder):
             break
 
     if config_name is not None:
+        if config_name in ["simple_adv"]:
+            config_name = "gymma"
         with open(os.path.join(os.path.dirname(__file__), "config", subfolder, "{}.yaml".format(config_name)), "r") as f:
             try:
                 config_dict = yaml.load(f, Loader=yaml.FullLoader)
