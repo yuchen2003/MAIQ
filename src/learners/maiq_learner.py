@@ -233,7 +233,7 @@ class MAIQLearner:
     def getV(self, Q):
         return self.args.alpha * th.logsumexp(Q / self.args.alpha, dim=3)
 
-    def clone(self, batch: EpisodeBatch, t_env: int, episode_num: int):
+    def clone(self, batch: EpisodeBatch, t_env: int, episode_num: int): # episoed_num is for updating the target network
         # Get the relevant quantities
         actions = batch["actions"]
         mask = batch["filled"].float()
@@ -363,7 +363,7 @@ class MAIQLearner:
                 t_mask1 * th.clamp(th.div(td_error1, 1 + td_error1), -20, 20)
             ).sum() / t_mask1.sum()
         elif self.args.divergence_type == "PearsonChiSquared":
-            # x - x^2/4\alpha
+            # x - x^2/4 * \alpha
             loss1 = (t_mask1 * td_error1).sum() / t_mask1.sum() - 1.0 / (
                 4 * self.args.alpha
             ) * ((t_mask1 * td_error1) ** 2).sum() / t_mask1.sum()

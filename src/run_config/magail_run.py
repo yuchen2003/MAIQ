@@ -229,7 +229,6 @@ def run_sequential(args, logger):
     start_time = time.time()
     last_time = start_time
 
-    logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
     logger.console_logger.info("Beginning behavior clone for {} timesteps".format(args.bc_iters))
 
     for bc_t in range(args.bc_iters):
@@ -241,6 +240,7 @@ def run_sequential(args, logger):
         learner.clone(expert_sample, bc_t)
     logger.console_logger.info("Ending behavior clone for {} timesteps".format(args.bc_iters))
 
+    logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
     while runner.t_env <= args.t_max:
         # Run for a whole episode at a time
         # print(expert_batch_state.shape)

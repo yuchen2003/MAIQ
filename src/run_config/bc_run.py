@@ -97,24 +97,37 @@ def run_sequential(args, logger):
 
     # Default/Base scheme
 
-    scheme = {
+    if args.env == 'sc2':
+        scheme = {
+            "state": {"vshape": env_info["state_shape"]},
+            "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
+            "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
+            "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
+            "reward": {"vshape": (1,)},
+            "terminated": {"vshape": (1,), "dtype": th.uint8},
+        }
+        groups = {
+            "agents": args.n_agents
+        }
+        preprocess = {
+            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+        }
+        
+    else:
+        scheme = {
         "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
-        "avail_actions": {
-            "vshape": (env_info["n_actions"],),
-            "group": "agents",
-            "dtype": th.float32
-        },
+        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
         "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
-    }
-    groups = {
-        "agents": args.n_agents
-    }
-    preprocess = {
-        # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-    }
+        }
+        groups = {
+            "agents": args.n_agents
+        }
+        preprocess = {
+            # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+        }
 
     buffer = ReplayBuffer(
         scheme,
@@ -168,9 +181,7 @@ def run_sequential(args, logger):
 
             # For random 注释掉全部即可
             # For BC
-            learner.clone(episode_sample, runner.t_env)
-            # For MAIQL
-            # learner.train(episode_sample, runner.t_env, episode)
+            learner.clone(episode_sample, runner.t_env, episode)
 
         # Execute test runs once in a while
         n_test_runs = max(1, args.test_nepisode // runner.batch_size)

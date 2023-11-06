@@ -35,8 +35,8 @@ class Logger:
         config = wandb.config
         args_dict = vars(args)
         run_name = args.remark + '_' + args.name + '_' + args.mixer
-        # if args.is_bc:
-        #     run_name += '_bc'
+        if args.is_bc:
+            run_name += '_bc'
 
         wandb.init(name=name, 
                    config=args_dict, 

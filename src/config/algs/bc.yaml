@@ -45,7 +45,7 @@ task_type: "continuous"
 
 use_wandb: False 
 results_save_dir: './results/'
-load_dataset_dir: 'dataset/3m_qmix_10.pkl'
+load_dataset_dir: 'dataset/5m_vs_6m_qmix_10.pkl'
 alpha: 0.5
 name: "bc"
 use_tanh: True

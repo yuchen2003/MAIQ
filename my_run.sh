@@ -11,7 +11,7 @@
 # python3 src/main.py --config=sample --run_file=sample --env-config=sc2 with env_args.map_name=3m obs_last_action=False
 # 
 # 3. MAIL algs
-# python3 src/main.py --config=bc --run_file=bc_run  --env-config=sc2 with env_args.map_name=3m # this may have be deprecated
+# python3 src/main.py --config=bc --run_file=bc_run  --env-config=sc2 with env_args.map_name=3m # this has been deprecated
 
 # python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=3m is_bc=True
 
@@ -21,26 +21,36 @@
 # python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3m t_max=2050000 &
 # python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3m t_max=2050000  
 
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3s_vs_5z t_max=2060000 save_model=True &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3s_vs_5z t_max=2060000 &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3s_vs_5z t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 save_model=True &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2060000 &
-
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_9m t_max=2060000 save_model=True &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_9m t_max=2060000 &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=8m_vs_9m t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 save_model=True &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=10m_vs_11m t_max=2060000 &
-
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 save_model=True &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 &
-python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2c_vs_64zg t_max=2060000 save_model=True &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2c_vs_64zg t_max=2060000 &
-CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=2c_vs_64zg t_max=2060000 &
+python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m save_model=True &
+python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m &
+python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=5m_vs_6m &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 save_model=True &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=MMM2 t_max=2060000 &
 wait
 
-# python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=25 env_args.key="lbforaging:Foraging-8x8-2p-1f-coop-v2"
+# python3 src/main.py --config=qmix --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0
+
+# test different divergences: TotalVariation, PearsonChiSquared, Hellinger, ForwardKL, ReverseKL, JensenShannon
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=TotalVariation remark=TotalVariation &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=Hellinger remark=Hellinger &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=ForwardKL remark=ForwardKL &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=ReverseKL remark=ReverseKL &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=PearsonChiSquared remark=PearsonChiSquared &
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m divergence_type=JensenShannon remark=JensenShannon &
+wait
+
+echo a1 && sleep 2 && echo a & 
+echo b1 && sleep 1 && echo b & 
+wait
+
+# mpe envs
+# "multi_speaker_listener": "MultiSpeakerListener-v0",
+# "simple_adversary": "SimpleAdversary-v0",
+# "simple_crypto": "SimpleCrypto-v0",
+# "simple_push": "SimplePush-v0",
+# "simple_reference": "SimpleReference-v0",
+# "simple_speaker_listener": "SimpleSpeakerListener-v0",
+# "simple_spread": "SimpleSpread-v0",
+# "simple_tag": "SimpleTag-v0",
+# "simple_world_comm": "SimpleWorldComm-v0",

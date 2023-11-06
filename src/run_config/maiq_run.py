@@ -32,9 +32,7 @@ def maiq_run(_run, _config, _log):
     logger = Logger(_log, results_save_dir)
 
     _log.info("Experiment Parameters:")
-    experiment_params = pprint.pformat(_config,
-                                       indent=4,
-                                       width=1)
+    experiment_params = pprint.pformat(_config, indent=4, width=1)
     _log.info("\n\n" + experiment_params + "\n")
 
     # configure tensorboard logger
@@ -93,6 +91,7 @@ def run_sequential(args, logger):
     args.state_shape = env_info["state_shape"]
 
     # Default/Base scheme
+
     if args.env == 'sc2':
         scheme = {
             "state": {"vshape": env_info["state_shape"]},
@@ -143,8 +142,7 @@ def run_sequential(args, logger):
     if args.use_cuda:
         learner.cuda()
 
-    buffer = pickle.load(open(args.load_dataset_dir, 'rb')) 
-    # no 'checkpoint_path' here
+    buffer = pickle.load(open(args.load_dataset_dir, 'rb')) # expert dataset
 
     # start training
     episode = 0
@@ -156,6 +154,16 @@ def run_sequential(args, logger):
     start_time = time.time()
     last_time = start_time
 
+    logger.console_logger.info("Beginning behavior clone for {} timesteps".format(args.bc_iters))
+    for bc_t in range(args.bc_iters):
+        expert_sample = buffer.sample(args.batch_size)
+        max_ep_t_expert = expert_sample.max_t_filled()
+        expert_sample = expert_sample[:, : max_ep_t_expert]
+        if expert_sample.device != args.device:
+            expert_sample.to(args.device)
+        learner.clone(expert_sample, bc_t, episode)
+        episode += args.batch_size_run # for updating the target network
+    
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
     while runner.t_env <= args.t_max:
@@ -170,10 +178,12 @@ def run_sequential(args, logger):
             if episode_sample.device != args.device:
                 episode_sample.to(args.device)
 
+            # learner.train(episode_sample, runner.t_env, episode)
             if not args.is_bc:
                 learner.train(episode_sample, runner.t_env, episode)
             else:
-                learner.clone(episode_sample, runner.t_env, episode) 
+                # TODO 这里用的仍然是专家数据
+                learner.clone(expert_sample, runner.t_env, episode) 
 
         # Execute test runs once in a while
         n_test_runs = max(1, args.test_nepisode // runner.batch_size)
@@ -236,5 +246,3 @@ def args_sanity_check(config, _log):
         config["test_nepisode"] = (config["test_nepisode"]//config["batch_size_run"]) * config["batch_size_run"]
 
     return config
-
-#python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3m

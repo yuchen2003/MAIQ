@@ -8,7 +8,7 @@ epsilon_anneal_time: 50000
 
 runner: "episode"
 
-buffer_size: 2000
+buffer_size: 2000 # replay buffer
 batch_size: 8
 
 # update the target network every {} episodes
@@ -27,10 +27,11 @@ hypernet_embed: 64
 name: "maiq"
 use_wandb: True 
 results_save_dir: './results/'
-load_dataset_dir: 'dataset/3m_qmix_10.pkl'
+load_dataset_dir: 'dataset/5m_vs_6m_qmix_10.pkl'
 divergence_type: "TotalVariation" # TotalVariation, PearsonChiSquared, Hellinger, ForwardKL, ReverseKL, JensenShannon
 remark: "TotalVariation"
 alpha: 1.0
 save_video: False # make it False when use smac
 save_video_interval: 100000
 is_bc: False 
+bc_iters: 500

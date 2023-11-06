@@ -75,6 +75,15 @@ class COMALearner:
         advantages = (q_taken - baseline).detach()
 
         coma_loss = - ((advantages * log_pi_taken) * mask).sum() / mask.sum()
+        
+        # -- lkm idea --
+        # mask = mask.unsqueeze(-1).repeat(1, self.n_actions)
+        # baseline = baseline.unsqueeze(-1).repeat(1, self.n_actions)
+        # pi[mask == 0] = 1.0
+        # log_pi = th.log(pi)
+        # advantage = (q_vals - baseline).detach()
+        # coma_loss = - (pi.detach() * (advantage * log_pi) * mask).sum() / mask.sum()
+        # -- lkm idea --
 
         # Optimise agents
         self.agent_optimiser.zero_grad()

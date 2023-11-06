@@ -57,7 +57,7 @@ class MAIQContinuousLearner:
         if self.args.standardise_rewards:
             self.rew_ms = RunningMeanStd(shape=(1,), device=self.device)
 
-    def clone(self, batch: EpisodeBatch, t_env: int):
+    def clone(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         actions = batch["actions"]
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
