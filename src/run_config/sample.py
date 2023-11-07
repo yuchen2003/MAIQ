@@ -99,8 +99,38 @@ def run_sequential(args, logger):
     args.state_shape = env_info["state_shape"]
 
     # Default/Base scheme
-    if args.env == 'sc2':
-        scheme = {
+    # if args.env == 'sc2':
+    #     scheme = {
+    #         "state": {"vshape": env_info["state_shape"]},
+    #         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
+    #         "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
+    #         "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
+    #         "reward": {"vshape": (1,)},
+    #         "terminated": {"vshape": (1,), "dtype": th.uint8},
+    #     }
+    #     groups = {
+    #         "agents": args.n_agents
+    #     }
+    #     preprocess = {
+    #         "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+    #     }
+        
+    # else:
+    #     scheme = {
+    #     "state": {"vshape": env_info["state_shape"]},
+    #     "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
+    #     "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
+    #     "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
+    #     "reward": {"vshape": (1,)},
+    #     "terminated": {"vshape": (1,), "dtype": th.uint8},
+    #     }
+    #     groups = {
+    #         "agents": args.n_agents
+    #     }
+    #     preprocess = {
+    #         "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)]) # mpe needs this 应该不需要这些？
+    #     }
+    scheme = {
             "state": {"vshape": env_info["state_shape"]},
             "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
             "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
@@ -108,30 +138,14 @@ def run_sequential(args, logger):
             "reward": {"vshape": (1,)},
             "terminated": {"vshape": (1,), "dtype": th.uint8},
         }
-        groups = {
+    groups = {
             "agents": args.n_agents
         }
-        preprocess = {
+    preprocess = {
             "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
         }
-        
-    else:
-        scheme = {
-        "state": {"vshape": env_info["state_shape"]},
-        "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-        "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
-        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
-        "reward": {"vshape": (1,)},
-        "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
 
-    args.buffer_size = (env_info["episode_limit"] + 5) * (args.episode_cnt + 1)
+    args.buffer_size = (env_info["episode_limit"] + 5) * (args.episode_cnt + 1) # 这里的5,1怎么解释?
 
     buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,

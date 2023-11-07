@@ -19,8 +19,8 @@ class ISACAgent(nn.Module):
             self.rnn = nn.Linear(args.hidden_dim, args.hidden_dim)
         self.fc2 = nn.Linear(args.hidden_dim, args.hidden_dim)
 
-        self.action_head = nn.Linear(args.hidden_dim, args.n_actions*args.n_agents)
-        self.continuous_std = nn.Linear(args.hidden_dim, args.n_actions*args.n_agents)
+        self.action_head = nn.Linear(args.hidden_dim, args.n_actions * args.n_agents)
+        self.continuous_std = nn.Linear(args.hidden_dim, args.n_actions * args.n_agents)
 
     def init_hidden(self):
         # make hidden states on same device as model

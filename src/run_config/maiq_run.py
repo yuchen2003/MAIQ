@@ -121,7 +121,7 @@ def run_sequential(args, logger):
             "agents": args.n_agents
         }
         preprocess = {
-            # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
         }
         
     

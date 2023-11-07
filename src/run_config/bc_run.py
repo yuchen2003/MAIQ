@@ -95,47 +95,27 @@ def run_sequential(args, logger):
     args.n_actions = env_info["n_actions"]
     args.state_shape = env_info["state_shape"]
 
+  
     # Default/Base scheme
-
-    if args.env == 'sc2':
-        scheme = {
-            "state": {"vshape": env_info["state_shape"]},
-            "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-            "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-            "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
-            "reward": {"vshape": (1,)},
-            "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
-        
-    else:
-        scheme = {
+    
+    scheme = {
         "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
         "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
         "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
         "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
+    }
+    groups = {
+        "agents": args.n_agents
+    }
+    preprocess = {
+        # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+    }
 
-    buffer = ReplayBuffer(
-        scheme,
-        groups,
-        args.buffer_size,
-        env_info["episode_limit"] + 1,
-        preprocess=preprocess,
-        device="cpu" if args.buffer_cpu_only else args.device)
+    buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+                          preprocess=preprocess,
+                          device="cpu" if args.buffer_cpu_only else args.device)
 
     # Setup multiagent controller here
     mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
@@ -165,8 +145,8 @@ def run_sequential(args, logger):
 
     while runner.t_env <= args.t_max:
         # Run for a whole episode at a time
-        # episode_batch = runner.run(test_mode=False)
-        # buffer.insert_episode_batch(episode_batch)
+        episode_batch = runner.run(test_mode=False)
+        buffer.insert_episode_batch(episode_batch)
 
         if buffer.can_sample(args.batch_size):
             episode_sample = buffer.sample(args.batch_size)
@@ -222,7 +202,7 @@ def run_sequential(args, logger):
             last_log_T = runner.t_env
 
     runner.close_env()
-    logger.console_logger.info("Finished Sampling")
+    logger.console_logger.info("Sampling Finished.")
 
 
 def args_sanity_check(config, _log):

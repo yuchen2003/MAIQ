@@ -42,4 +42,4 @@ sac_alpha: 0.001
 grad_norm_clip: 0.5
 task_type: "discrete"
 
-name: "independent_sac"
+name: "isac_discrete"

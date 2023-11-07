@@ -37,12 +37,17 @@ class Logger:
         run_name = args.remark + '_' + args.name + '_' + args.mixer
         if args.is_bc:
             run_name += '_bc'
-
+        
+        try:
+            map_group_name = args.env_args['map_name']
+        except:
+            map_group_name = args.env_args['key']
+        
         wandb.init(name=name, 
                    config=args_dict, 
                    dir=directory_name, 
                    project=project_name, 
-                   group=args.env + '_' + args.env_args['map_name'], 
+                   group=args.env + '_' + map_group_name, 
                    job_type=run_name,
                    entity="liyc-group")
 

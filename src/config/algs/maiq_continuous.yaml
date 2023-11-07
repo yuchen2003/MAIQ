@@ -11,7 +11,8 @@ evaluation_epsilon: 0.0
 
 runner: "episode"
 
-buffer_size: 500000 
+buffer_size: 500000
+batch_size: 8 
 # update the target network every {} episodes
 target_update_interval_or_tau: 0.005
 
@@ -45,8 +46,11 @@ task_type: "continuous"
 
 use_wandb: True 
 results_save_dir: './results/'
-load_dataset_dir: 'dataset/mpe:SimpleSpread-v0__50000.pkl'
+load_dataset_dir: 'dataset/5m_vs_6m_qmix_10.pkl'
 # load_dataset_dir: 'dataset/mpe:SimpleTag-v0__50000.pkl'
 alpha: 0.5
 name: "maiq_c"
 use_tanh: True
+bc_iters: 1
+save_video: False # make it False when use smac
+save_video_interval: 100000

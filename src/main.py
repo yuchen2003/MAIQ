@@ -42,7 +42,7 @@ def my_main(_run, _config, _log):
     th.manual_seed(config["seed"])
     config['env_args']['seed'] = config["seed"]
     run_func = {
-        # "bc": bc_run,
+        "bc": bc_run,
         "render": run_render,
         "run": run,
         "sample": run_sample,

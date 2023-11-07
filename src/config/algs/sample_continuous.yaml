@@ -49,4 +49,4 @@ load_dataset_dir: 'dataset'
 save_dataset_dir: 'dataset'
 use_wandb: False
 
-name: "simple_continuous"
+name: "sample_continuous"

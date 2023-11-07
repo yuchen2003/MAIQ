@@ -24,11 +24,11 @@ hypernet_embed: 64
 name: "sample"
 episode_log_interval: 100
 
-episode_cnt: 10
+episode_cnt: 25
 buffer_size: 2000
 
-# checkpoint_path: '/home/leiyuan/xyc/MAIQ/results/models/qmix__5m_vs_6m__2023-11-01_18-53-03'
-checkpoint_path: '/home/leiyuan/xyc/MAIQ/results/models/qmix__MMM2__2023-11-01_18-53-03'
+checkpoint_path: '/home/leiyuan/xyc/MAIQ/results/models/qmix__mpe:SimpleTag-v0__2023-11-07_15-05-24'
+# checkpoint_path: '/home/leiyuan/xyc/MAIQ/results/models/qmix__MMM2__2023-11-01_18-53-03'
 load_dataset_dir: 'dataset'
 save_dataset_dir: 'dataset'
 use_wandb: False

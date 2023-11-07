@@ -47,7 +47,7 @@ d_iters: 3
 name: "maairl"
 discriminator: "fc"
 results_save_dir: './results/'
-load_dataset_dir: 'dataset/3m_qmix_10.pkl'
+load_dataset_dir: 'dataset/mpe:SimpleTag-v0__25.pkl'
 expert_data_path: ""
 t_max: 2005000
 is_bc: False

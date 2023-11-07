@@ -42,6 +42,6 @@ sac_alpha: 0.001
 grad_norm_clip: 0.5
 task_type: "continuous"
 
-name: "independent_sac"
+name: "isac_continuous"
 use_wandb: True
 save_model_interval: 200000

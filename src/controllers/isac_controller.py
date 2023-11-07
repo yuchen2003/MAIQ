@@ -134,10 +134,10 @@ class ISACMAC:
 
             if test_mode:
                 agent_mean = th.tanh(agent_mean)
-                return agent_mean.view(ep_batch.batch_size, self.args.n_agents, -1), log_prob_reshaped
-            return action_outputs.view(ep_batch.batch_size, self.args.n_agents, -1), log_prob_reshaped
+                return agent_mean.view(ep_batch.batch_size, self.args.n_agents, -1), log_prob_reshaped # test, cont
+            return action_outputs.view(ep_batch.batch_size, self.args.n_agents, -1), log_prob_reshaped # train, cont
 
-        return agent_outs.view(ep_batch.batch_size, self.args.n_agents, -1), None
+        return agent_outs.view(ep_batch.batch_size, self.args.n_agents, -1), None                      # discrete
 
     def init_hidden(self, batch_size):
         self.hidden_states = self.agent.init_hidden().expand(batch_size, -1)
