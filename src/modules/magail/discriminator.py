@@ -41,7 +41,7 @@ class Discriminator(nn.Module):
         # else:
         #     assert False
         input_shape = self.num_states + num_actions
-        print("input_shape", input_shape)
+        # print("input_shape", input_shape)
 
         _module_units = [input_shape]
         _module_units.extend(num_hiddens)

@@ -22,7 +22,7 @@ hypernet_layers: 2
 hypernet_embed: 64
 
 name: "sample"
-episode_log_interval: 100
+# episode_log_interval: 100
 
 episode_cnt: 25
 buffer_size: 2000

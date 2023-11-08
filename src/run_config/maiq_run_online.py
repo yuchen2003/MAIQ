@@ -32,9 +32,7 @@ def maiq_run_online(_run, _config, _log):
     logger = Logger(_log, results_save_dir)
 
     _log.info("Experiment Parameters:")
-    experiment_params = pprint.pformat(_config,
-                                       indent=4,
-                                       width=1)
+    experiment_params = pprint.pformat(_config, indent=4, width=1)
     _log.info("\n\n" + experiment_params + "\n")
 
     # configure tensorboard logger
@@ -93,37 +91,20 @@ def run_sequential(args, logger):
     args.state_shape = env_info["state_shape"]
 
     # Default/Base scheme
-    if args.env == 'sc2':
-        scheme = {
-            "state": {"vshape": env_info["state_shape"]},
-            "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-            "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-            "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
-            "reward": {"vshape": (1,)},
-            "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
-        
-    else:
-        scheme = {
+    scheme = {
         "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-        "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
-        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
+        "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
+        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
         "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
+    }
+    groups = {
+        "agents": args.n_agents
+    }
+    preprocess = {
+        "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+    }
 
     buffer_expert = pickle.load(open(args.load_dataset_dir, 'rb'))
 
@@ -143,8 +124,6 @@ def run_sequential(args, logger):
     if args.use_cuda:
         learner.cuda()
 
-
-    
     # start training
     episode = 0
     last_test_T = -args.test_interval - 1
@@ -247,5 +226,3 @@ def args_sanity_check(config, _log):
         config["test_nepisode"] = (config["test_nepisode"]//config["batch_size_run"]) * config["batch_size_run"]
 
     return config
-
-#python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3m

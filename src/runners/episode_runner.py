@@ -19,10 +19,10 @@ class EpisodeRunner:
 
         self.t_env = 0
 
-        self.train_returns = []
-        self.test_returns = []
-        self.train_stats = {}
-        self.test_stats = {}
+        # self.train_returns = []
+        # self.test_returns = []
+        # self.train_stats = {}
+        # self.test_stats = {}
         
         self.returns = {}
         self.stats = {}
@@ -71,7 +71,7 @@ class EpisodeRunner:
             actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
 
             # print(actions.shape)
-            reward, terminated, env_info = self.env.step(actions[0].cpu().detach().numpy())
+            reward, terminated, env_info = self.env.step(actions[0].cpu().detach().numpy()) # 相关信息从env中读取
             if render:
                 ep_obs.append(self.env.render(mode='rgb_array'))
             episode_return += reward
@@ -97,12 +97,12 @@ class EpisodeRunner:
         actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, test_mode=test_mode)
         self.batch.update({"actions": actions}, ts=self.t)
 
-        cur_stats = self.test_stats if test_mode else self.train_stats
-        cur_returns = self.test_returns if test_mode else self.train_returns
-        log_prefix = "test_" if test_mode else ""
-        cur_stats.update({k: cur_stats.get(k, 0) + env_info.get(k, 0) for k in set(cur_stats) | set(env_info)})
-        cur_stats["n_episodes"] = 1 + cur_stats.get("n_episodes", 0)
-        cur_stats["ep_length"] = self.t + cur_stats.get("ep_length", 0)
+        # cur_stats = self.test_stats if test_mode else self.train_stats
+        # cur_returns = self.test_returns if test_mode else self.train_returns
+        # log_prefix = "test_" if test_mode else ""
+        # cur_stats.update({k: cur_stats.get(k, 0) + env_info.get(k, 0) for k in set(cur_stats) | set(env_info)})
+        # cur_stats["n_episodes"] = 1 + cur_stats.get("n_episodes", 0)
+        # cur_stats["ep_length"] = self.t + cur_stats.get("ep_length", 0)
         
         self.returns[tag] = self.returns.get(tag, []) + [episode_return]
         if tag not in self.stats:
@@ -114,7 +114,7 @@ class EpisodeRunner:
         if not test_mode:
             self.t_env += self.t
 
-        cur_returns.append(episode_return)
+        # cur_returns.append(episode_return)
         
         if render:
             assert(path != None)
@@ -122,13 +122,13 @@ class EpisodeRunner:
                 for obs in ep_obs:
                     writer.append_data(obs)
 
-        if test_mode and (len(self.test_returns) == self.args.test_nepisode):
-            self._log(cur_returns, cur_stats, log_prefix)
-        elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
-            self._log(cur_returns, cur_stats, log_prefix)
-            if hasattr(self.mac.action_selector, "epsilon"):
-                self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)
-            self.log_train_stats_t = self.t_env
+        # if test_mode and (len(self.test_returns) == self.args.test_nepisode):
+        #     self._log(cur_returns, cur_stats, log_prefix)
+        # elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
+        #     self._log(cur_returns, cur_stats, log_prefix)
+        #     if hasattr(self.mac.action_selector, "epsilon"):
+        #         self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)
+        #     self.log_train_stats_t = self.t_env
 
         return self.batch
 

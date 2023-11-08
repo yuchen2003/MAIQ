@@ -190,6 +190,7 @@ from modules.mixers.qmix import QMixer
 from modules.mixers.linear_mixer import LinearMixer
 
 import torch as th
+from functools import partial
 from torch.optim import RMSprop
 import torch.nn.functional as F
 
@@ -402,8 +403,8 @@ class MAIQLearner:
 
         if t_env - self.log_stats_t >= self.args.learner_log_interval:
             self.logger.log_stat("loss", loss.item(), t_env)
-            self.logger.log_stat("loss1", loss1.item(), t_env)
-            self.logger.log_stat("loss2", loss2.item(), t_env)
+            # self.logger.log_stat("loss1", loss1.item(), t_env)
+            # self.logger.log_stat("loss2", loss2.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             mask_elems = mask.sum().item()
             # self.logger.log_stat("td_error_abs1", (td_error1.abs().sum().item()/mask_elems), t_env)
@@ -423,6 +424,49 @@ class MAIQLearner:
             self.target_mixer.load_state_dict(self.mixer.state_dict())
         self.logger.console_logger.info("Updated target network")
 
+    def build_batch_online(self, expert_batch: EpisodeBatch, agent_batch: EpisodeBatch, scheme, groups, preprocess):
+        batch = partial(EpisodeBatch, scheme, groups, expert_batch.batch_size*2, expert_batch.max_seq_length,
+                                 preprocess=preprocess, device=self.args.device)()
+        
+        state_expert = expert_batch['state']
+        state_agent = agent_batch['state']
+        state = th.cat((state_expert, state_agent), dim=0)
+
+        # agent_length = agent_batch['obs'].shape[1]
+        obs_expert = expert_batch['obs']
+        obs_agent = agent_batch['obs']
+        obs = th.cat((obs_expert, obs_agent), dim=0)
+
+        actions_expert = expert_batch['actions']
+        actions_agent = agent_batch['actions']
+        actions = th.cat((actions_expert, actions_agent), dim=0)
+
+        terminated_expert = expert_batch['terminated']
+        terminated_agent = agent_batch['terminated']
+        terminated = th.cat((terminated_expert, terminated_agent), dim=0)
+
+        filled_expert = expert_batch['filled']
+        filled_agent = agent_batch['filled']
+        filled = th.cat((filled_expert, filled_agent), dim=0)
+
+        avail_expert = expert_batch['avail_actions']
+        avail_agent = agent_batch['avail_actions']
+        avail_actions = th.cat((avail_expert, avail_agent), dim=0)
+
+        concat_data = {
+            "state": state,
+            "obs": obs,
+            "actions": actions,
+            "terminated": terminated,
+            "filled": filled,
+            "avail_actions": avail_actions
+        }
+        batch.update(concat_data, mark_filled=False)
+        self.is_expert = th.cat([th.ones_like(th.tensor(range(expert_batch.batch_size)), dtype=th.bool),
+                           th.zeros_like(th.tensor(range(expert_batch.batch_size)), dtype=th.bool)], dim=0)
+        return batch
+    
+    
     def cuda(self):
         self.mac.cuda()
         self.target_mac.cuda()

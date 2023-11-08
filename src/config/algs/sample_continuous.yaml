@@ -40,7 +40,6 @@ q_net: "isac_q_net"
 sac_alpha: 0.001
 grad_norm_clip: 0.5
 task_type: "continuous"
-episode_log_interval: 100
 episode_cnt: 50
 buffer_size: 2000
 #checkpoint_path: 'results/sc2/3m/qmix/qmix_2022-10-11_08-47-32/models'

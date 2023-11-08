@@ -33,15 +33,11 @@ def run_magail(_run, _config, _log):
     args = SN(**_config)
     args.device = "cuda" if args.use_cuda else "cpu"
 
-    # expert_data_path = args.expert_data_path + '/100tra.pkl'
-    # print(expert_data_path)
     # setup loggers
     results_save_dir = args.results_save_dir
     logger = Logger(_log, results_save_dir)
     _log.info("Experiment Parameters:")
-    experiment_params = pprint.pformat(_config,
-                                       indent=4,
-                                       width=1)
+    experiment_params = pprint.pformat(_config, indent=4, width=1)
     _log.info("\n\n" + experiment_params + "\n")
 
     # configure tensorboard logger
@@ -104,7 +100,7 @@ def run_sequential(args, logger):
     args.n_actions = env_info["n_actions"]
     args.state_shape = env_info["state_shape"]
 
-    disc_type = args.disc_type
+    disc_type = args.disc_type # discriminator
 
     # Default/Base scheme
     scheme = {
@@ -122,7 +118,7 @@ def run_sequential(args, logger):
     preprocess = {
         "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
     }
-    print("Scheme", scheme)
+    # print("Scheme", scheme)
     buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
@@ -151,16 +147,20 @@ def run_sequential(args, logger):
 
     if disc_type == 'decentralized':
         discriminator = [
-                            discriminator_REGISTRY[args.discriminator](env_info["obs_shape"], env_info["n_actions"], args.n_agents,
-                                          disc_type=disc_type).to(args.device)
+                            discriminator_REGISTRY[args.discriminator](
+                                env_info["obs_shape"], env_info["n_actions"], args.n_agents,
+                                disc_type=disc_type
+                            ).to(args.device)
                         ] * env_info["n_agents"]
     elif disc_type == 'centralized':
         # TODO 仍需验证解决方案是否正确
-        discriminator = discriminator_REGISTRY[args.discriminator](env_info["obs_shape"] * env_info["n_agents"],
-                                      env_info["n_actions"] * env_info["n_agents"], args.n_agents,
-                                      disc_type=disc_type).to(args.device)
+        discriminator = discriminator_REGISTRY[args.discriminator](
+                            env_info["obs_shape"] * env_info["n_agents"],
+                            env_info["n_actions"] * env_info["n_agents"], args.n_agents,
+                            disc_type=disc_type
+                        ).to(args.device)
     else:
-        assert False
+        raise ValueError('Unrecognized discriminator {}'.format(disc_type))
 
     # Learner
     learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
@@ -230,17 +230,17 @@ def run_sequential(args, logger):
     last_time = start_time
 
     logger.console_logger.info("Beginning behavior clone for {} timesteps".format(args.bc_iters))
-
-    for bc_t in range(args.bc_iters):
+    
+    for bc_t in range(args.bc_iters): # TODO may modify this
         expert_sample = expert_dataset.sample(args.batch_size)
         max_ep_t_expert = expert_sample.max_t_filled()
         expert_sample = expert_sample[:, :max_ep_t_expert]
         if expert_sample.device != args.device:
             expert_sample.to(args.device)
         learner.clone(expert_sample, bc_t)
-    logger.console_logger.info("Ending behavior clone for {} timesteps".format(args.bc_iters))
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
+
     while runner.t_env <= args.t_max:
         # Run for a whole episode at a time
         # print(expert_batch_state.shape)
@@ -271,7 +271,7 @@ def run_sequential(args, logger):
             # expert_sample_test_D = expert_dataset_test_D.sample(args.batch_size)
             # if expert_sample_test_D.device != args.device:
             #     expert_sample_test_D.to(args.device)
-            for d_iter in range(args.d_iters):
+            for d_iter in range(args.d_iters): # generate rewards
                 if disc_type == 'centralized':
                     # print(episode_sample.data.transition_data['obs'], episode_sample.data.transition_data['actions_onehot'])
                     gen_r = train(args, discriminator, episode_sample, expert_sample, logger, runner.t_env, disc_type,
@@ -341,10 +341,14 @@ def train(args, discriminator, episode_sample, expert_sample, logger, t_env, dis
           optimizer_discriminator=None, scheduler_discriminator=None):
     if disc_type == 'centralized':
         if args.discriminator == "fc":
-            gen_r = discriminator(get_all_for_magail(episode_sample.data.transition_data['obs'][:, :-1]),
-                                  get_all_for_magail(episode_sample.data.transition_data['actions_onehot'][:, :-1]))
-            expert_r = discriminator(get_all_for_magail(expert_sample.data.transition_data['obs'][:, :-1]),
-                                     get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, :-1]))
+            gen_r = discriminator(
+                get_all_for_magail(episode_sample.data.transition_data['obs'][:, :-1]),
+                get_all_for_magail(episode_sample.data.transition_data['actions_onehot'][:, :-1]),
+            )
+            expert_r = discriminator(
+                get_all_for_magail(expert_sample.data.transition_data['obs'][:, :-1]),
+                get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, :-1]),
+            )
         elif args.discriminator == 'rnn':
             # 如果采用rnn，需要将traj拆成每个timestep
             gen_r_lists = []
@@ -359,8 +363,8 @@ def train(args, discriminator, episode_sample, expert_sample, logger, t_env, dis
             hidden_state = discriminator.init_hidden(args.batch_size)
             for t in range(expert_sample.max_seq_length-1):
                 expert_r, hidden_state = discriminator(get_all_for_magail(expert_sample.data.transition_data['obs'][:, t], "rnn"),
-                                         get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, t], "rnn"),
-                                                       hidden_state=hidden_state)
+                                            get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, t], "rnn"),
+                                            hidden_state=hidden_state)
                 expert_r_lists.append(expert_r)
 
             # 将生成的reward合并
@@ -372,8 +376,10 @@ def train(args, discriminator, episode_sample, expert_sample, logger, t_env, dis
     else:
         if args.discriminator == "fc":
             # print("Check episode shape:", episode_sample.data.transition_data['obs'][:, :-1].shape)
-            gen_r = discriminator(episode_sample.data.transition_data['obs'][:, :-1, n_agent],
-                                  episode_sample.data.transition_data['actions_onehot'][:, :-1, n_agent])
+            gen_r = discriminator(
+                        episode_sample.data.transition_data['obs'][:, :-1, n_agent],
+                        episode_sample.data.transition_data['actions_onehot'][:, :-1, n_agent],
+                    )
             expert_r = discriminator(expert_sample.data.transition_data['obs'][:, :-1, n_agent],
                                      expert_sample.data.transition_data['actions_onehot'][:, :-1, n_agent])
         elif args.discriminator == 'rnn':
@@ -381,17 +387,19 @@ def train(args, discriminator, episode_sample, expert_sample, logger, t_env, dis
             gen_r_lists = []
             hidden_state = discriminator.init_hidden(args.batch_size)
             for t in range(episode_sample.max_seq_length-1):
-                gen_r, hidden_state = discriminator(get_all_for_magail(episode_sample.data.transition_data['obs'][:, t, n_agent], "rnn"),
-                                                    get_all_for_magail(episode_sample.data.transition_data['actions_onehot'][:, t, n_agent], "rnn"),
-                                                    hidden_state=hidden_state)
+                gen_r, hidden_state = discriminator(
+                    get_all_for_magail(episode_sample.data.transition_data['obs'][:, t, n_agent], "rnn"),
+                    get_all_for_magail(episode_sample.data.transition_data['actions_onehot'][:, t, n_agent], "rnn"),
+                    hidden_state=hidden_state)
                 gen_r_lists.append(gen_r)
 
             expert_r_lists = []
             hidden_state = discriminator.init_hidden(args.batch_size)
             for t in range(expert_sample.max_seq_length-1):
-                expert_r, hidden_state = discriminator(get_all_for_magail(expert_sample.data.transition_data['obs'][:, t, n_agent], "rnn"),
-                                                       get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, t, n_agent], "rnn"),
-                                                       hidden_state=hidden_state)
+                expert_r, hidden_state = discriminator(
+                    get_all_for_magail(expert_sample.data.transition_data['obs'][:, t, n_agent], "rnn"),
+                    get_all_for_magail(expert_sample.data.transition_data['actions_onehot'][:, t, n_agent], "rnn"),
+                    hidden_state=hidden_state)
                 expert_r_lists.append(expert_r)
 
             # 将生成的reward合并
@@ -439,16 +447,16 @@ def train(args, discriminator, episode_sample, expert_sample, logger, t_env, dis
     with torch.no_grad():
         gen_r_ = -F.logsigmoid(-gen_r)
 
-    logger.log_stat("dis loss", d_loss, t_env)
-    # logger.log_stat("dis test loss", expert_loss_test_D, t_env)
+    logger.log_stat("disc loss", d_loss, t_env)
+    # logger.log_stat("disc test loss", expert_loss_test_D, t_env)
     logger.log_stat("g loss", g_loss, t_env)
     logger.log_stat("e loss", e_loss, t_env)
     # print("Dis lr ", scheduler_discriminator.get_lr())
-    logger.log_stat("dis lr", scheduler_discriminator.get_lr()[-1], t_env)
-    logger.log_stat("dis_reward_max", th.max(gen_r_), t_env)
-    logger.log_stat("dis_reward_min", th.min(gen_r_), t_env)
-    logger.log_stat("dis_reward_sum", th.sum(gen_r_), t_env)
-    logger.log_stat("dis_reward_mean", th.mean(gen_r_), t_env)
+    logger.log_stat("disc lr", scheduler_discriminator.get_lr()[-1], t_env)
+    logger.log_stat("disc_reward_max", th.max(gen_r_), t_env)
+    logger.log_stat("disc_reward_min", th.min(gen_r_), t_env)
+    logger.log_stat("disc_reward_sum", th.sum(gen_r_), t_env)
+    logger.log_stat("disc_reward_mean", th.mean(gen_r_), t_env)
     # logger.log_stat("dis_reward_without_log_mean", th.mean(gen_r_sigmoid), t_env)
 
     # """ WGAN with Gradient Penalty"""

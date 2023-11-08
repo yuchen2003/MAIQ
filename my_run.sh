@@ -19,9 +19,10 @@
 
 # handscript
 # python3 src/main.py --config=qmix --env-config=sc2 with env_args.map_name=3m t_max=2050000
-
+python3 src/main.py --config=sample --run_file=sample --env-config=gymma with env_args.key=mpe:SimpleTag-v0 episode_cnt=100
 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0 is_bc=True
-python3 src/main.py --config=maairl --run_file=maairl --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maairl --run_file=maairl --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0 load_dataset_dir=dataset/mpe:SimpleTag-v0__100.pkl bc_iters=0 remark=no_bc_start
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=magail --run_file=magail --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0 load_dataset_dir=dataset/mpe:SimpleTag-v0__100.pkl bc_iters=0 remark=no_bc_start
 
 # mpe envs
 # "multi_speaker_listener": "MultiSpeakerListener-v0",

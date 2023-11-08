@@ -91,58 +91,38 @@ def run_sequential(args, logger):
     args.state_shape = env_info["state_shape"]
 
     # Default/Base scheme
-
-    if args.env == 'sc2':
-        scheme = {
-            "state": {"vshape": env_info["state_shape"]},
-            "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-            "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-            "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
-            "reward": {"vshape": (1,)},
-            "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
-        
-    else:
-        scheme = {
+    scheme = {
         "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-        "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
-        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
+        "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
+        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
         "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
-        }
-        groups = {
-            "agents": args.n_agents
-        }
-        preprocess = {
-            "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
-        }
-        
-    
+    }
+    groups = {
+        "agents": args.n_agents
+    }
+    preprocess = {
+        "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+    }
 
-    buffer = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
+    buffer_expert = pickle.load(open(args.load_dataset_dir, 'rb'))
+
+    buffer_agent = ReplayBuffer(scheme, groups, args.buffer_size, env_info["episode_limit"] + 1,
                           preprocess=preprocess,
                           device="cpu" if args.buffer_cpu_only else args.device)
 
     # Setup multiagent controller here
-    mac = mac_REGISTRY[args.mac](buffer.scheme, groups, args)
+    mac = mac_REGISTRY[args.mac](buffer_agent.scheme, groups, args)
 
     # Give runner the scheme
     runner.setup(scheme=scheme, groups=groups, preprocess=preprocess, mac=mac)
 
     # Learner
-    learner = le_REGISTRY[args.learner](mac, buffer.scheme, logger, args)
+    learner = le_REGISTRY[args.learner](mac, buffer_agent.scheme, logger, args)
 
     if args.use_cuda:
         learner.cuda()
-
-    buffer = pickle.load(open(args.load_dataset_dir, 'rb')) # expert dataset
 
     # start training
     episode = 0
@@ -153,23 +133,26 @@ def run_sequential(args, logger):
 
     start_time = time.time()
     last_time = start_time
-
+    
     logger.console_logger.info("Beginning behavior clone for {} timesteps".format(args.bc_iters))
     for bc_t in range(args.bc_iters):
-        expert_sample = buffer.sample(args.batch_size)
+        expert_sample = buffer_expert.sample(args.batch_size)
         max_ep_t_expert = expert_sample.max_t_filled()
         expert_sample = expert_sample[:, : max_ep_t_expert]
         if expert_sample.device != args.device:
             expert_sample.to(args.device)
-        learner.clone(expert_sample, bc_t, episode)
+            
+        if not args.is_bc: # for bc start
+            learner.clone(expert_sample, bc_t, episode)
+            
         episode += args.batch_size_run # for updating the target network
-    
+
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 
     while runner.t_env <= args.t_max:
 
-        if buffer.can_sample(args.batch_size):
-            episode_sample = buffer.sample(args.batch_size)
+        if buffer_expert.can_sample(args.batch_size):
+            episode_sample = buffer_expert.sample(args.batch_size)
 
             max_ep_t = episode_sample.max_t_filled()
             episode_sample = episode_sample[:, :max_ep_t]
@@ -178,7 +161,6 @@ def run_sequential(args, logger):
             if episode_sample.device != args.device:
                 episode_sample.to(args.device)
 
-            # learner.train(episode_sample, runner.t_env, episode)
             if not args.is_bc:
                 learner.train(episode_sample, runner.t_env, episode)
             else:

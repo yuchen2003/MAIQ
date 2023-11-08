@@ -44,7 +44,7 @@ class RNNDiscriminator(nn.Module):
         # else:
         #     assert False
         input_shape = self.num_states + num_actions
-        print("input_shape", input_shape)
+        # print("input_shape", input_shape)
         self.first_fc = torch.nn.Linear(input_shape, 128)
         self.rnn = nn.GRUCell(128, hidden_dim)
         self.layers_after_rnn = torch.nn.Sequential(

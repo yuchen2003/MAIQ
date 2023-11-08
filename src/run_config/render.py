@@ -164,9 +164,6 @@ def run_sequential(args, logger):
     # print(args.load_dataset_dir)
     # exit(0)
 
-    
-    #episode_cnt = args.episode_cnt
-    #episode_log_interval = args.episode_log_interval
 
     for _ in range(10):
         episode_batch = runner.run(_=_, test_mode=True,)

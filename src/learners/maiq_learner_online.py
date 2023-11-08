@@ -325,7 +325,7 @@ class MAIQLearnerOnline:
         #     target_max_qvals = target_mac_out.max(dim=3)[0]
 
         # Mix
-        if self.args.mixer == "linear_mixer":
+        if self.args.mixer in ["linear_mixer", "linear_abs_mixer", "linear_relu_mixer"]:
             chosen_action_qvals = self.mixer(
                 chosen_action_qvals, batch["state"][:, :-1]
             )
@@ -347,7 +347,7 @@ class MAIQLearnerOnline:
 
         # loss1 = (Q(s, a) - gamma * v(s'))
         td_error1 = chosen_action_qvals - y.detach()
-        td_error1 = td_error1[self.is_expert]
+        td_error1 = td_error1[self.is_expert] # ? 这里作用是什么
         # mask1 = is_valid * (1. - terminated)
         t_mask1 = mask[self.is_expert].expand_as(td_error1)
         
@@ -365,7 +365,7 @@ class MAIQLearnerOnline:
                 t_mask1 * th.clamp(th.div(td_error1, 1 + td_error1), -20, 20)
             ).sum() / t_mask1.sum()
         elif self.args.divergence_type == "PearsonChiSquared":
-            # x - x^2/4\alpha
+            # x - x^2/4 * \alpha
             loss1 = (t_mask1 * td_error1).sum() / t_mask1.sum() - 1.0 / (
                 4 * self.args.alpha
             ) * ((t_mask1 * td_error1) ** 2).sum() / t_mask1.sum()
@@ -425,7 +425,6 @@ class MAIQLearnerOnline:
         if self.mixer is not None:
             self.target_mixer.load_state_dict(self.mixer.state_dict())
         self.logger.console_logger.info("Updated target network")
-
 
     def build_batch_online(self, expert_batch: EpisodeBatch, agent_batch: EpisodeBatch, scheme, groups, preprocess):
         batch = partial(EpisodeBatch, scheme, groups, expert_batch.batch_size*2, expert_batch.max_seq_length,

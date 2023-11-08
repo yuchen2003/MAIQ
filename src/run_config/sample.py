@@ -198,12 +198,9 @@ def run_sequential(args, logger):
 
     
     episode_cnt = args.episode_cnt
-    episode_log_interval = args.episode_log_interval # may not needed
     for _ in tqdm(range(episode_cnt)):
         episode_batch = runner.run(test_mode=True)
         buffer.insert_episode_batch(episode_batch)
-        if _ % episode_log_interval == 0:
-            logger.console_logger.info("Sampling episode {}".format(_))
     
 
     buffer.save(args.save_dataset_dir)
