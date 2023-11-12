@@ -181,5 +181,5 @@ class ISACMAC:
         input_shape = scheme["obs"]["vshape"]
         if self.args.obs_last_action:
             input_shape += scheme["actions"]["vshape"][0]
-        # input_shape += scheme["actions"]["vshape"][0]
+        
         return input_shape * self.args.n_agents

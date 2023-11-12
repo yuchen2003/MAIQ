@@ -312,7 +312,7 @@ class MAIQLearner:
 
         # y = gamma * v(s')
 
-        # TODO Is it necessary to use double q in multi_agent?
+        # TODO Is it necessary to use double q in multi_agent? - Commonly suggested.
 
         # # Max over target Q-Values
         # if self.args.double_q:
@@ -345,10 +345,13 @@ class MAIQLearner:
 
         y = (1 - terminated) * self.args.gamma * next_v
 
-        # loss1 = (Q(s, a) - gamma * v(s'))
+        # loss1 = \phi(Q(s, a) - gamma * v(s'))
         td_error1 = chosen_action_qvals - y.detach()
         # mask1 = is_valid * (1. - terminated)
         t_mask1 = mask.expand_as(td_error1)
+        
+        # b_corr = -th.min(td_error1.detach())
+        # td_error1 += 100  # inefficacy
         
         if self.args.divergence_type == "ForwardKL":
             # 1 + log(x)
@@ -364,10 +367,9 @@ class MAIQLearner:
                 t_mask1 * th.clamp(th.div(td_error1, 1 + td_error1), -20, 20)
             ).sum() / t_mask1.sum()
         elif self.args.divergence_type == "PearsonChiSquared":
-            # x - x^2/4 * \alpha
-            loss1 = (t_mask1 * td_error1).sum() / t_mask1.sum() - 1.0 / (
-                4 * self.args.alpha
-            ) * ((t_mask1 * td_error1) ** 2).sum() / t_mask1.sum()
+            # x - x^2/(4 * \alpha)
+            loss1 = (t_mask1 * td_error1).sum() / t_mask1.sum() \
+                - 1.0 / (4 * self.args.alpha) * ((t_mask1 * td_error1) ** 2).sum() / t_mask1.sum()
         elif self.args.divergence_type == "TotalVariation":
             # x
             loss1 = (t_mask1 * td_error1).sum() / t_mask1.sum()
@@ -403,12 +405,12 @@ class MAIQLearner:
 
         if t_env - self.log_stats_t >= self.args.learner_log_interval:
             self.logger.log_stat("loss", loss.item(), t_env)
-            # self.logger.log_stat("loss1", loss1.item(), t_env)
-            # self.logger.log_stat("loss2", loss2.item(), t_env)
+            self.logger.log_stat("loss1", loss1.item(), t_env)
+            self.logger.log_stat("loss2", loss2.item(), t_env)
             self.logger.log_stat("grad_norm", grad_norm, t_env)
             mask_elems = mask.sum().item()
-            # self.logger.log_stat("td_error_abs1", (td_error1.abs().sum().item()/mask_elems), t_env)
-            # self.logger.log_stat("td_error_abs2", (td_error2.abs().sum().item()/mask_elems), t_env)
+            self.logger.log_stat("td_error_abs1", (td_error1.abs().sum().item()/mask_elems), t_env)
+            self.logger.log_stat("td_error_abs2", (td_error2.abs().sum().item()/mask_elems), t_env)
             self.logger.log_stat(
                 "q_taken_mean",
                 (chosen_action_qvals * mask).sum().item()

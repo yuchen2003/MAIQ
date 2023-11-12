@@ -24,6 +24,24 @@ python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_ar
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maairl --run_file=maairl --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0 load_dataset_dir=dataset/mpe:SimpleTag-v0__100.pkl bc_iters=0 remark=no_bc_start
 CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=magail --run_file=magail --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0 load_dataset_dir=dataset/mpe:SimpleTag-v0__100.pkl bc_iters=0 remark=no_bc_start
 
+python3 src/main.py --config=maddpg --env-config=gymma with env_args.time_limit=25 env_args.key=mpe:SimpleTag-v0  t_max=25000 log_interval=1000
+
+# -------------- continuous -----------------
+python3 src/main.py --config=sac --env-config=gymma with env_args.key=mpe:SimpleTag-v0
+# -------------- continuous -----------------
+
+# -------------- divergence -----------------
+divergence_type: "TotalVariation" # TotalVariation, PearsonChiSquared, Hellinger, ForwardKL, ReverseKL, JensenShannon
+remark: "TotalVariation"
+python3 src/main.py --config=maiq --run_file=maiq --env-config=sc2 with env_args.map_name=5m_vs_6m t_max=2050000 divergence_type=ForwardKL remark=ForwardKL
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=ForwardKL remark=ForwardKL
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=TotalVariation remark=TotalVariation
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=PearsonChiSquared remark=PearsonChiSquared
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=Hellinger remark=Hellinger
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=ReverseKL remark=ReverseKL
+CUDA_VISIBLE_DEVICES=1 python3 src/main.py --config=maiq --run_file=maiq --env-config=gymma with env_args.key=mpe:SimpleTag-v0 t_max=1050000 divergence_type=JensenShannon remark=JensenShannon
+# -------------- divergence -----------------
+
 # mpe envs
 # "multi_speaker_listener": "MultiSpeakerListener-v0",
 # "simple_adversary": "SimpleAdversary-v0",

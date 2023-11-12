@@ -41,6 +41,8 @@ q_net: "isac_q_net"
 sac_alpha: 0.001
 grad_norm_clip: 0.5
 task_type: "continuous"
+use_tanh: True
+divide_1_gamma: True
 
 name: "isac_continuous"
 use_wandb: True

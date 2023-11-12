@@ -231,13 +231,15 @@ def run_sequential(args, logger):
 
     logger.console_logger.info("Beginning behavior clone for {} timesteps".format(args.bc_iters))
     
-    for bc_t in range(args.bc_iters): # TODO may modify this
+    for bc_t in range(args.bc_iters):
         expert_sample = expert_dataset.sample(args.batch_size)
         max_ep_t_expert = expert_sample.max_t_filled()
         expert_sample = expert_sample[:, :max_ep_t_expert]
         if expert_sample.device != args.device:
             expert_sample.to(args.device)
-        learner.clone(expert_sample, bc_t)
+        
+        if not args.is_bc: # for bc start
+            learner.clone(expert_sample, bc_t)
 
     logger.console_logger.info("Beginning training for {} timesteps".format(args.t_max))
 

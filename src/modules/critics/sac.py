@@ -115,7 +115,7 @@ class ISACQNet(nn.Module):
         x = F.relu(self.fc2(x))
         q = self.fc3(x).reshape(*inputs_shape[:-1], self.n_agents, self.n_actions)
         if self.args.use_tanh:
-            q = F.tanh(q)
+            q = th.tanh(q)
             if self.args.divide_1_gamma:
                 q = 1.0 * q / (1 - self.args.gamma)
         return q

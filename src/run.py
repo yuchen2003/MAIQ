@@ -99,20 +99,36 @@ def run_sequential(args, logger):
     args.state_shape = env_info["state_shape"]
     # args.unit_dim = env_info["unit_dim"]
 
-    # Default/Base scheme
+    # Default/Base scheme: For discrete control
+    # scheme = {
+    #     "state": {"vshape": env_info["state_shape"]},
+    #     "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
+    #     "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
+    #     "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
+    #     "reward": {"vshape": (1,)},
+    #     "terminated": {"vshape": (1,), "dtype": th.uint8},
+    # }
+    # groups = {
+    #     "agents": args.n_agents
+    # }
+    # preprocess = {
+    #     "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+    # }
+
+    # For continuous control
     scheme = {
         "state": {"vshape": env_info["state_shape"]},
         "obs": {"vshape": env_info["obs_shape"], "group": "agents"},
-        "actions": {"vshape": (1,), "group": "agents", "dtype": th.long},
-        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.int},
+        "actions": {"vshape": (args.n_actions,), "group": "agents", "dtype": th.float32},
+        "avail_actions": {"vshape": (env_info["n_actions"],), "group": "agents", "dtype": th.float32},
         "reward": {"vshape": (1,)},
         "terminated": {"vshape": (1,), "dtype": th.uint8},
-    }
+        }
     groups = {
         "agents": args.n_agents
     }
     preprocess = {
-        "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
+        # "actions": ("actions_onehot", [OneHot(out_dim=args.n_actions)])
     }
 
     env_name = args.env

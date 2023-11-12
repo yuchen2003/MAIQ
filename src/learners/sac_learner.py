@@ -142,7 +142,7 @@ class SACLearner:
         q_loss = ((q_error_1 * q_mask) ** 2).sum() / q_mask.sum() + ((q_error_2 * q_mask) ** 2).sum() / q_mask.sum()
 
         self.q_optimizer.zero_grad()
-        q_loss.backward()
+        q_loss.backward() # FIXME
         q_grad_norm = th.nn.utils.clip_grad_norm_(self.q_net_parameters, self.args.grad_norm_clip)
         self.q_optimizer.step()
         # for name, parms in self.q_net_1.named_parameters():	

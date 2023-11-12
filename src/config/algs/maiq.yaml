@@ -28,6 +28,7 @@ name: "maiq"
 use_wandb: True 
 results_save_dir: './results/'
 load_dataset_dir: 'dataset/mpe:SimpleTag-v0__25.pkl'
+# load_dataset_dir: 'dataset/5m_vs_6m_qmix_10.pkl'
 divergence_type: "TotalVariation" # TotalVariation, PearsonChiSquared, Hellinger, ForwardKL, ReverseKL, JensenShannon
 remark: "TotalVariation"
 alpha: 1.0
